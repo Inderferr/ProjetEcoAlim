@@ -43,20 +43,35 @@ def create_raw_material_selector(mp_codes):
     
     return selected_mps
 
-def create_phase_uploader(label, file_type="xlsx"):
-    """Crée un uploader de fichier avec extraction des phases"""
+def create_phase_uploader(label, file_type="xlsx", default_path=None):
+    """Uploader Streamlit avec fallback automatique vers un fichier local."""
+    
     uploaded_file = st.file_uploader(label, type=[file_type])
     selected_phase = PHASE_PLACEHOLDER
     phase_df = None
-    
+
+    # --- Cas 1 : l'utilisateur a uploadé un fichier ---
     if uploaded_file is not None:
         phase_df = pd.read_excel(uploaded_file, index_col=0)
-        phases = extract_phases_from_columns(phase_df.columns.tolist())
-        selected_phase = st.selectbox(f"Sélectionnez la phase {label.lower()} :", 
-                                    [PHASE_PLACEHOLDER] + phases)
-    
-    return uploaded_file, phase_df, selected_phase
 
+    # --- Cas 2 : aucun upload → on charge le fichier par défaut ---
+    elif default_path is not None:
+        try:
+            phase_df = pd.read_excel(default_path, index_col=0)
+            st.info(f"Fichier par défaut chargé : {default_path}")
+        except FileNotFoundError:
+            st.error(f"Impossible de charger le fichier par défaut : {default_path}")
+            return None, None, PHASE_PLACEHOLDER
+
+    # --- Si un dataframe est disponible, on propose la sélection de phase ---
+    if phase_df is not None:
+        phases = extract_phases_from_columns(phase_df.columns.tolist())
+        selected_phase = st.selectbox(
+            f"Sélectionnez la phase {label.lower()} :",
+            [PHASE_PLACEHOLDER] + phases
+        )
+
+    return uploaded_file, phase_df, selected_phase
 # ===== TRAITEMENT DES DONNÉES =====
 
 def filter_data_by_selection(data, selected_mps, selected_price):
@@ -734,13 +749,11 @@ def display_input_form():
 
     # Onglet 3: Phase nutrition
     with tabs[2]:
-        nutrition_file, nutrition_df, nutrition_phase = create_phase_uploader(
-            "Télécharger les contraintes de nutrition")
+        nutrition_file, nutrition_df, nutrition_phase = create_phase_uploader("Contraintes nutritionnelles",default_path="data/Contraintes_nutritionnelles_BP_validation méthode.xlsx")
 
     # Onglet 4: Phase incorporation  
     with tabs[3]:
-        incorporation_file, incorporation_df, incorporation_phase = create_phase_uploader(
-            "Télécharger les contraintes d'incorporation")
+        incorporation_file, incorporation_df, incorporation_phase = create_phase_uploader("Télécharger les contraintes d'incorporation", default_path="data/incorporation_constraints.xlsx")
 
     # Traitement principal si tous les paramètres sont sélectionnés
     if all([selected_price != PRICE_PLACEHOLDER, 
