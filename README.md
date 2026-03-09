@@ -4,7 +4,7 @@ Calculateur multicritère pour la formulation porcine : pondération, ε‑contr
 
 **Outil d'aide à la décision pour une formulation d'aliments conciliant performance économique et durabilité environnementale.**
 
-Ce projet a été développé par **Cyprien Quettier** dans le cadre du Master **Recherche Opérationnelle et Aide à la Décision (ROAD)** de l'Université de Bordeaux, en collaboration avec l'**IFIP-Institut du porc**.
+Ce projet a été développé par **Cyprien Quettier** dans le cadre du Master **Recherche Opérationnelle et Aide à la Décision (ROAD)** de l'Université de Bordeaux, en collaboration avec l'**IFIP-Institut du porc** & l'**INRAE**.
 
 ---
 
